@@ -24,8 +24,8 @@ let package = Package(
         ),
         .binaryTarget(
             name: "ConnectUI",
-            url: "https://github.com/Vignesh-Thangamariappan/ConnectUI-CMP/releases/download/v0.1.4/ConnectUI.xcframework.zip",
-            checksum: "0336f9b7e0bcd13304fa0fec926fa50100ee7dee7281b9a81f023287490d691b"
+            url: "https://github.com/Vignesh-Thangamariappan/ConnectUI-CMP/releases/download/v0.1.6/ConnectUI.xcframework.zip",
+            checksum: "3ed6033313dbaa2ccc5719dca2093db5ef1a8a79499581a6494e10b06b0e6997"
         )
     ]
 )
