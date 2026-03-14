@@ -36,18 +36,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add Package.swift VERSION
-          git commit -m "Update to version ${TAG}"
+          git commit -m "Update to version ${TAG} [sync skip]"
           git push origin main
           
-          # Create and push tag
+          # Push the tag to trigger release.yml
           git tag ${TAG}
           git push origin ${TAG}
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.event.client_payload.tag }}
-          name: ${{ github.event.client_payload.tag }}
-          body: "Automated sync with CMPUI-CMP core release ${{ github.event.client_payload.tag }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

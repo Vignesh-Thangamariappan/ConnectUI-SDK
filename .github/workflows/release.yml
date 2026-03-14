@@ -3,8 +3,8 @@ name: CD
 on:
   push:
     branches: [ main ]
-    tags-ignore:
-      - '*' # Ignore tags to avoid duplicate releases if sync.yml also creates them
+    tags:
+      - 'v*'
 
 jobs:
   release:
