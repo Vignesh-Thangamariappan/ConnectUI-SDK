@@ -76,6 +76,18 @@ jobs:
           git commit -m "Automated sync to core version ${TAG} [sync skip]"
           git push origin main
           
-          # Push tag (triggers release.yml)
+          # Push tag
           git tag ${TAG}
           git push origin ${TAG}
+
+      - name: Create Release
+        if: steps.core.outputs.tag != steps.core.outputs.current
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: "v${{ steps.core.outputs.tag }}"
+          name: "v${{ steps.core.outputs.tag }}"
+          body: "Automated release for version v${{ steps.core.outputs.tag }}. Synchronized with ConnectUI-CMP core library."
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
