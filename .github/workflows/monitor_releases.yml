@@ -7,7 +7,7 @@ on:
 
 jobs:
   check-version:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
@@ -21,31 +21,44 @@ jobs:
         run: |
           # Fetch latest release from the core repo
           LATEST_RELEASE=$(curl -s https://api.github.com/repos/Vignesh-Thangamariappan/ConnectUI-CMP/releases/latest | jq -r .tag_name)
-          echo "tag=$LATEST_RELEASE" >> $GITHUB_OUTPUT
+          echo "LATEST_RELEASE: $LATEST_RELEASE"
           
-          # Get the current SDK version
-          CURRENT_VERSION="v$(cat VERSION)"
-          echo "current=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          # Standardize to remove 'v' for comparison
+          CORE_VER="${LATEST_RELEASE#v}"
+          echo "CORE_VER: $CORE_VER"
+          echo "tag=$CORE_VER" >> $GITHUB_OUTPUT
+          
+          # Get the current SDK version from VERSION file
+          SDK_VER=$(cat VERSION | tr -d '[:space:]')
+          echo "SDK_VER: $SDK_VER"
+          echo "current=$SDK_VER" >> $GITHUB_OUTPUT
 
       - name: Sync and Release
         if: steps.core.outputs.tag != steps.core.outputs.current
         run: |
-          TAG="${{ steps.core.outputs.tag }}"
-          CLEAN_TAG="${TAG#v}"
+          CORE_VER="${{ steps.core.outputs.tag }}"
+          TAG="v${CORE_VER}"
           URL="https://github.com/Vignesh-Thangamariappan/ConnectUI-CMP/releases/download/${TAG}/CMPUI.xcframework.zip"
           
           echo "New version detected: $TAG"
+          echo "Downloading from: $URL"
           
           # Download and compute checksum
           curl -L -o CMPUI.xcframework.zip "$URL"
-          CHECKSUM=$(swift package compute-checksum CMPUI.xcframework.zip)
+          if [ ! -f CMPUI.xcframework.zip ]; then
+            echo "Failed to download asset"
+            exit 1
+          fi
           
-          # Update Package.swift
-          sed -i '' "s|url: \"https://github.com/Vignesh-Thangamariappan/ConnectUI-CMP/releases/download/.*/CMPUI.xcframework.zip\"|url: \"$URL\"|g" Package.swift
-          sed -i '' "s|checksum: \".*\"|checksum: \"$CHECKSUM\"|g" Package.swift
+          CHECKSUM=$(swift package compute-checksum CMPUI.xcframework.zip)
+          echo "New Checksum: $CHECKSUM"
+          
+          # Update Package.swift (Using perl for cross-platform compatibility or just standard sed on ubuntu)
+          sed -i "s|url: \"https://github.com/Vignesh-Thangamariappan/ConnectUI-CMP/releases/download/.*/CMPUI.xcframework.zip\"|url: \"$URL\"|g" Package.swift
+          sed -i "s|checksum: \".*\"|checksum: \"$CHECKSUM\"|g" Package.swift
           
           # Update VERSION file
-          echo "$CLEAN_TAG" > VERSION
+          echo "$CORE_VER" > VERSION
           
           # Commit and Push
           git config user.name "github-actions[bot]"
