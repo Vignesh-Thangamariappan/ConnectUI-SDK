@@ -2,30 +2,30 @@
 import PackageDescription
 
 let package = Package(
-    name: "ConnectUI-SDK",
+    name: "CMPUI-SDK",
     platforms: [
         .iOS(.v15)
     ],
     products: [
         .library(
-            name: "ConnectUISwift",
-            targets: ["ConnectUISwift"]
+            name: "CMPUISwift",
+            targets: ["CMPUISwift"]
         ),
     ],
     dependencies: [],
     targets: [
         .target(
-            name: "ConnectUISwift",
-            dependencies: ["ConnectUI"]
+            name: "CMPUISwift",
+            dependencies: ["CMPUI"]
         ),
         .testTarget(
-            name: "ConnectUISwiftTests",
-            dependencies: ["ConnectUISwift"]
+            name: "CMPUISwiftTests",
+            dependencies: ["CMPUISwift"]
         ),
         .binaryTarget(
-            name: "ConnectUI",
-            url: "https://github.com/Vignesh-Thangamariappan/ConnectUI-CMP/releases/download/v0.1.6/ConnectUI.xcframework.zip",
-            checksum: "3ed6033313dbaa2ccc5719dca2093db5ef1a8a79499581a6494e10b06b0e6997"
+            name: "CMPUI",
+            url: "https://github.com/Vignesh-Thangamariappan/ConnectUI-CMP/releases/download/v0.1.7/CMPUI.xcframework.zip",
+            checksum: "72e5d15881f2632a2dfd212156a39336d52034e0ef98b725b9917afc0fd9d806"
         )
     ]
 )

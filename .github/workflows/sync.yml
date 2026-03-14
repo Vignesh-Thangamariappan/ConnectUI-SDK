@@ -18,10 +18,11 @@ jobs:
           TAG="${{ github.event.client_payload.tag }}"
           CLEAN_TAG="${TAG#v}" # Remove 'v' prefix if present
           CHECKSUM="${{ github.event.client_payload.checksum }}"
-          URL="https://github.com/Vignesh-Thangamariappan/ConnectUI-CMP/releases/download/${TAG}/ConnectUI.xcframework.zip"
+          URL="https://github.com/Vignesh-Thangamariappan/ConnectUI-CMP/releases/download/${TAG}/CMPUI.xcframework.zip"
           
-          # Update URL
-          sed -i '' "s|url: \"https://github.com/Vignesh-Thangamariappan/ConnectUI-CMP/releases/download/.*/ConnectUI.xcframework.zip\"|url: \"$URL\"|g" Package.swift
+          # Update URL (Note: The repo name might still be ConnectUI-CMP or have changed, 
+          # but the user specified CMPUI.xcframework.zip in artifacts)
+          sed -i '' "s|url: \"https://github.com/Vignesh-Thangamariappan/ConnectUI-CMP/releases/download/.*/CMPUI.xcframework.zip\"|url: \"$URL\"|g" Package.swift
           
           # Update Checksum
           sed -i '' "s|checksum: \".*\"|checksum: \"$CHECKSUM\"|g" Package.swift
@@ -47,6 +48,6 @@ jobs:
         with:
           tag_name: ${{ github.event.client_payload.tag }}
           name: ${{ github.event.client_payload.tag }}
-          body: "Automated sync with ConnectUI-CMP core release ${{ github.event.client_payload.tag }}"
+          body: "Automated sync with CMPUI-CMP core release ${{ github.event.client_payload.tag }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
