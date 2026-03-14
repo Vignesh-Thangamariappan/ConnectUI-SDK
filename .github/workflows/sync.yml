@@ -1,0 +1,48 @@
+name: Sync with Core
+
+on:
+  repository_dispatch:
+    types: [core_release]
+
+jobs:
+  update-package:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update Package.swift
+        run: |
+          TAG="${{ github.event.client_payload.tag }}"
+          CHECKSUM="${{ github.event.client_payload.checksum }}"
+          URL="https://github.com/Vignesh-Thangamariappan/ConnectUI-CMP/releases/download/${TAG}/ConnectUI.xcframework.zip"
+          
+          # Update URL
+          sed -i '' "s|url: \"https://github.com/Vignesh-Thangamariappan/ConnectUI-CMP/releases/download/.*/ConnectUI.xcframework.zip\"|url: \"$URL\"|g" Package.swift
+          
+          # Update Checksum
+          sed -i '' "s|checksum: \".*\"|checksum: \"$CHECKSUM\"|g" Package.swift
+
+      - name: Commit and Push
+        run: |
+          TAG="${{ github.event.client_payload.tag }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Package.swift
+          git commit -m "Update to version ${TAG}"
+          git push origin main
+          
+          # Create and push tag
+          git tag ${TAG}
+          git push origin ${TAG}
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.client_payload.tag }}
+          name: ${{ github.event.client_payload.tag }}
+          body: "Automated sync with ConnectUI-CMP core release ${{ github.event.client_payload.tag }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
