@@ -1,0 +1,59 @@
+name: Monitor Core Releases
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # Every 6 hours
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  check-version:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Latest Core Release
+        id: core
+        run: |
+          # Fetch latest release from the core repo
+          LATEST_RELEASE=$(curl -s https://api.github.com/repos/Vignesh-Thangamariappan/ConnectUI-CMP/releases/latest | jq -r .tag_name)
+          echo "tag=$LATEST_RELEASE" >> $GITHUB_OUTPUT
+          
+          # Get the current SDK version
+          CURRENT_VERSION="v$(cat VERSION)"
+          echo "current=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Sync and Release
+        if: steps.core.outputs.tag != steps.core.outputs.current
+        run: |
+          TAG="${{ steps.core.outputs.tag }}"
+          CLEAN_TAG="${TAG#v}"
+          URL="https://github.com/Vignesh-Thangamariappan/ConnectUI-CMP/releases/download/${TAG}/CMPUI.xcframework.zip"
+          
+          echo "New version detected: $TAG"
+          
+          # Download and compute checksum
+          curl -L -o CMPUI.xcframework.zip "$URL"
+          CHECKSUM=$(swift package compute-checksum CMPUI.xcframework.zip)
+          
+          # Update Package.swift
+          sed -i '' "s|url: \"https://github.com/Vignesh-Thangamariappan/ConnectUI-CMP/releases/download/.*/CMPUI.xcframework.zip\"|url: \"$URL\"|g" Package.swift
+          sed -i '' "s|checksum: \".*\"|checksum: \"$CHECKSUM\"|g" Package.swift
+          
+          # Update VERSION file
+          echo "$CLEAN_TAG" > VERSION
+          
+          # Commit and Push
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Package.swift VERSION
+          git commit -m "Automated sync to core version ${TAG} [sync skip]"
+          git push origin main
+          
+          # Push tag (triggers release.yml)
+          git tag ${TAG}
+          git push origin ${TAG}
