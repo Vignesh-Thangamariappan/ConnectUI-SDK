@@ -1,0 +1,30 @@
+name: CD
+
+on:
+  push:
+    branches: [ main ]
+    tags-ignore:
+      - '*' # Ignore tags to avoid duplicate releases if sync.yml also creates them
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: release-${{ github.sha }}
+          name: Release ${{ github.sha }}
+          body: |
+            Automated release for commit ${{ github.sha }}
+            Merged changes to main branch.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

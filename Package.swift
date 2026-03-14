@@ -18,6 +18,10 @@ let package = Package(
             name: "ConnectUISwift",
             dependencies: ["ConnectUI"]
         ),
+        .testTarget(
+            name: "ConnectUISwiftTests",
+            dependencies: ["ConnectUISwift"]
+        ),
         .binaryTarget(
             name: "ConnectUI",
             url: "https://github.com/Vignesh-Thangamariappan/ConnectUI-CMP/releases/download/v0.1.4/ConnectUI.xcframework.zip",
