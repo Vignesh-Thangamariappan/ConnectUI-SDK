@@ -1,6 +1,6 @@
 # ConnectUI-SDK
 
-A Swift Package Manager (SPM) wrapper for the **ConnectUI-CMP** core library, providing a SwiftUI-friendly `ConnectView`.
+A Swift Package Manager (SPM) wrapper for the **ConnectUI-CMP** core library, providing a SwiftUI-friendly `ConnectView`. This package follows **Semantic Versioning** and stays in sync with the core library releases.
 
 ## Features
 
