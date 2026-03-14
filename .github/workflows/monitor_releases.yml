@@ -20,8 +20,17 @@ jobs:
         id: core
         run: |
           # Fetch latest release from the core repo
-          LATEST_RELEASE=$(curl -s https://api.github.com/repos/Vignesh-Thangamariappan/ConnectUI-CMP/releases/latest | jq -r .tag_name)
+          API_URL="https://api.github.com/repos/Vignesh-Thangamariappan/ConnectUI-CMP/releases/latest"
+          RESPONSE=$(curl -s "$API_URL")
+          LATEST_RELEASE=$(echo "$RESPONSE" | jq -r .tag_name)
+          
+          echo "Full API Response: $RESPONSE"
           echo "LATEST_RELEASE: $LATEST_RELEASE"
+          
+          if [ "$LATEST_RELEASE" == "null" ] || [ -z "$LATEST_RELEASE" ]; then
+            echo "Error: Could not fetch latest release tag"
+            exit 1
+          fi
           
           # Standardize to remove 'v' for comparison
           CORE_VER="${LATEST_RELEASE#v}"
